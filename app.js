@@ -1,76 +1,31 @@
-//Available in nodejs
+const path = require('path');
+const express = require('express');
+const cors = require('cors');
+const { listarCameras, tirarFoto } = require('./webcam');
+const app = express();
 
-var NodeWebcam = require('node-webcam');
+app.use(cors());
 
-//Default options
+app.use('/imagens', express.static(path.join(__dirname, 'imagens')));
 
-var opts = {
-  //Picture related
+app.get('/', (req, res) => res.send('Olá!'));
 
-  width: 640,
-
-  height: 480,
-
-  quality: 100,
-
-  //Delay to take shot
-
-  delay: 0,
-
-  //Save shots in memory
-
-  saveShots: true,
-
-  // [jpeg, png] support varies
-  // Webcam.OutputTypes
-
-  output: 'jpeg',
-
-  //Which camera to use
-  //Use Webcam.list() for results
-  //false for default device
-
-  device: false,
-
-  // [location, buffer, base64]
-  // Webcam.CallbackReturnTypes
-
-  callbackReturn: 'location',
-
-  //Logging
-
-  verbose: true
-};
-
-//Creates webcam instance
-
-var Webcam = NodeWebcam.create(opts);
-
-//Will automatically append location output type
-
-// Webcam.capture("test_picture", function (err, data) { });
-
-//Also available for quick use
-
-NodeWebcam.capture('test_picture', opts, function(err, data) {});
-
-//Get list of cameras
-
-Webcam.list(function(list) {
-  //Use another device
-  console.log(list);
-
-  // var anotherCam = NodeWebcam.create({ device: list[0] });
+app.get('/foto', (req, res) => {
+  tirarFoto()
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      console.log('Erro ao tirar foto');
+      console.log(err);
+      res.sendStatus(400);
+    });
 });
 
-//Return type with base 64 image
-
-var opts = {
-  callbackReturn: 'base64'
-};
-
-NodeWebcam.capture('test_picture', opts, function(err, data) {
-  console.log('base64:');
-  console.log(data.length);
-  // var image = "<img src='" + data + "'>";
+app.get('/cameras', (req, res) => {
+  listarCameras().then(cameras => {
+    res.json(cameras);
+  });
 });
+
+app.listen(3000, () => console.log('Servidor escutando na porta 3000!'));
