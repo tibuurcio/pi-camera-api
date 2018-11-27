@@ -2,6 +2,8 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const { listarCameras, tirarFoto } = require('./webcam');
+const { servo } = require('./servo.js');
+const { led } = require('./led.js');
 const app = express();
 
 app.use(cors());
@@ -20,6 +22,18 @@ app.get('/foto', (req, res) => {
       console.log(err);
       res.sendStatus(400);
     });
+});
+
+app.get('/led/:value', (req, res) => {
+  const { value } = req.params;
+  led(value);
+  return res.sendStatus(200);
+});
+
+app.get('/motor/:value', (req, res) => {
+  const { value } = req.params;
+  servo(value);
+  return res.sendStatus(200);
 });
 
 app.get('/cameras', (req, res) => {
