@@ -6,6 +6,11 @@ import './App.css';
 import { ToastContainer, toast } from 'react-toastify';
 import Loading from './components/Loading';
 
+import Slider from 'rc-slider/lib/Slider';
+import 'rc-slider/assets/index.css';
+
+import { led, motor } from './api';
+
 const API_URL = process.env.REACT_APP_API_URL;
 
 class App extends Component {
@@ -13,8 +18,12 @@ class App extends Component {
     super(props);
     this.state = {
       imagemUrl: null,
-      loading: false
+      loading: false,
+      sliderValue: 1500
     };
+
+    motor(this.state.sliderValue);
+    this.toggleLed(false);
   }
 
   requisitarImagem = () => {
@@ -32,6 +41,24 @@ class App extends Component {
           this.setState({ loading: false });
         });
     });
+  };
+
+  onSliderChange = value => {
+    console.log(value);
+    this.setState({
+      sliderValue: value
+    });
+
+    motor(value);
+  };
+
+  toggleLed = value => {
+    this.setState(
+      state => ({
+        led: value !== undefined ? value : !state.led
+      }),
+      () => led(this.state.led)
+    );
   };
 
   render() {
@@ -53,6 +80,20 @@ class App extends Component {
               ) : this.state.loading ? (
                 <Loading />
               ) : null}
+            </div>
+            <div className="col-6">
+              <Slider
+                min={500}
+                max={2500}
+                step={250}
+                onChange={this.onSliderChange}
+                value={this.state.sliderValue}
+              />
+              <button
+                className={`btn ${this.state.led ? 'btn-success' : 'btn-secondary'}`}
+                onClick={() => this.toggleLed()}>
+                Luz
+              </button>
             </div>
           </div>
         </BaseLayout>
