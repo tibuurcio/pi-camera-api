@@ -14,4 +14,12 @@ function led(on) {
   }
 }
 
-export { motor, led };
+function imagem() {
+  return axios.get(`${API_URL}/foto`).then(res => res.data);
+}
+
+function getImagemUrl(nomeArquivo) {
+  return `${API_URL}/imagens/${nomeArquivo}`;
+}
+
+export { motor, led, imagem, getImagemUrl };
